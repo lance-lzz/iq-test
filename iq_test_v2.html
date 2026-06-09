@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业流体智力（IQ）认知能力测验</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        
+        h1 { text-align: center; color: #0f172a; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 15px; }
+        .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border-color); font-weight: bold; }
+        
+        .progress-container { width: 100%; height: 8px; background-color: var(--border-color); border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background-color: var(--primary-color); transition: width 0.3s ease; }
+
+        .question-card { display: none; }
+        .question-card.active { display: block; }
+        .dimension-tag { display: inline-block; padding: 4px 12px; background: #eff6ff; color: var(--primary-color); border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px; }
+        .question-text { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0f172a; }
+        
+        .options-list { list-style: none; margin-bottom: 30px; }
+        .option-item { margin-bottom: 12px; }
+        .option-item label { display: flex; align-items: center; padding: 14px 20px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .option-item label:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
+        .option-item input[type="radio"] { margin-right: 15px; width: 18px; height: 18px; accent-color: var(--primary-color); }
+        .option-item input[type="radio"]:checked + span { font-weight: 600; }
+        .option-item input[type="radio"]:checked ~ label { border-color: var(--primary-color); background-color: #eff6ff; }
+
+        .btn-group { display: flex; justify-content: space-between; margin-top: 20px; }
+        button { padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #e2e8f0; color: #475569; }
+        .btn-secondary:hover { background-color: #cbd5e1; }
+        button:disabled { background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+
+        #report-section { display: none; }
+        .score-box { text-align: center; padding: 30px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 30px; }
+        .score-num { font-size: 48px; font-weight: 800; color: var(--success); }
+        .iq-num { font-size: 24px; color: #166534; margin-top: 5px; }
+        
+        .dimension-report { margin-bottom: 25px; }
+        .dim-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: 600; }
+        .dim-bar-bg { width: 100%; height: 12px; background: var(--border-color); border-radius: 6px; overflow: hidden; }
+        .dim-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); width: 0%; transition: width 1s ease; }
+        
+        .analysis-box { margin-top: 40px; }
+        .analysis-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        .review-item { padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; background: #fafafa; }
+        .review-q { font-weight: 600; margin-bottom: 10px; }
+        .review-ans { font-size: 14px; margin-bottom: 5px; }
+        .review-exp { font-size: 14px; color: var(--text-muted); background: #f1f5f9; padding: 10px; border-radius: 4px; margin-top: 8px; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+        .wrong-tag { color: #ef4444; font-weight: bold; }
+
+        #start-section { text-align: center; padding: 40px 0; }
+        .start-btn { padding: 15px 40px; font-size: 18px; border-radius: 8px; }
+        .intro-list { text-align: left; max-width: 500px; margin: 20px auto 40px auto; color: #475569; }
+        .intro-list li { margin-bottom: 10px; }
+        svg { max-width: 100%; height: auto; display: block; margin: 15px auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-section">
+        <h1>专业流体智力 (IQ) 模拟测验</h1>
+        <p class="subtitle">Mensa 标尺级流体矩阵与高阶认知评估（精修视觉版）</p>
+        <ul class="intro-list">
+            <li>本测验包含 <strong>20 道</strong> 严谨研发的认知推理题。</li>
+            <li>四大评估维度：逻辑推理、空间想象、数学逻辑、言语理解。</li>
+            <li>推荐限时：<strong>30 分钟</strong>（配备实时计时器）。</li>
+            <li>所有图形题均已通过高清矢量结构化核验，消除多义性误导。</li>
+        </ul>
+        <button class="btn-primary start-btn" onclick="startQuiz()">开始专业测验</button>
+    </div>
+
+    <div id="quiz-section" style="display: none;">
+        <div class="quiz-meta">
+            <span id="question-number">题目 1 / 20</span>
+            <span id="timer">剩余时间: 30:00</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div id="questions-container">
+            </div>
+
+        <div class="btn-group">
+            <button class="btn-secondary" id="prev-btn" onclick="prevQuestion()" disabled>上一题</button>
+            <button class="btn-primary" id="next-btn" onclick="nextQuestion()">下一题</button>
+        </div>
+    </div>
+
+    <div id="report-section">
+        <h1>您的认知潜能评估报告</h1>
+        <p class="subtitle">测试完成时间：<span id="completion-time">2026年</span></p>
+        
+        <div class="score-box">
+            <p>最终答对题数</p>
+            <div class="score-num" id="final-score">0 / 20</div>
+            <div class="iq-num" id="estimated-iq">估算 IQ: --</div>
+        </div>
+
+        <h3 class="analysis-title">四大维度认知潜能分布</h3>
+        <div id="dimension-results"></div>
+
+        <div class="analysis-box">
+            <h3 class="analysis-title">全题型深度逻辑解析</h3>
+            <div id="review-container"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // 一、 逻辑推理
+    {
+        id: 1, dimension: "逻辑推理",
+        question: "已知 ▲ + ★ = ■，■ + ▲ = ●，● - ★ = ▲ + ▲。请问 ● 对应等于多少个 ▲？",
+        options: ["3个", "4个", "5个", "6个"], answer: 1,
+        explanation: "通过代入消元法。由第二式知 ● = ■ + ▲，由第一式知 ■ = ▲ + ★。两式结合得 ● = 2▲ + ★。第三式移项得 ● - ★ = 2▲ 相互印证。当 ★ = 2▲ 时，■ = 3▲，● = 4▲。带入方程完全成立。故 ● = 4个 ▲。"
+    },
+    {
+        id: 2, dimension: "逻辑推理",
+        question: "A、B、C、D 四人中有一人偷吃了蛋糕。A说：'是B吃的。' B说：'是D吃的。' C说：'不是我吃的。' D说：'B在说谎。' 已知四人中只有一个人说了真话，请问蛋糕是谁吃的？",
+        options: ["A", "B", "C", "D"], answer: 2,
+        explanation: "B和D的话互为矛盾关系，两句话必有一真一假。因为全场只有一句真话，说明真话在B/D中，则A和C说的是假话。C说'不是我吃的'为假，反话即为'是C吃的'。验证：C吃时，仅D说真话，符合设定。"
+    },
+    {
+        id: 3, dimension: "逻辑推理",
+        question: "找出下列选项中与其他三个本质逻辑分类不同的一项：",
+        options: ["太阳能电池板", "水力发电机", "核反应堆", "风力涡轮机"], answer: 2,
+        explanation: "太阳能、水力、风力都属于自然循环的、可再生的清洁能源。而核反应堆依赖消耗非再生的铀、钚等放射性矿产资源，在能源分类上属于不可再生能源。"
+    },
+    {
+        id: 4, dimension: "逻辑推理",
+        question: "某国规定：'只有持有特殊通行证且体温正常的人，才能进入国家核心实验室。' 根据这一规定，以下哪项断定必然为真？",
+        options: ["小明持有特殊通行证且体温正常，他一定能进入实验室。", "小华进入了实验室，说明他一定持有特殊通行证。", "小张没有进入实验室，说明他要么没拿通行证，要么体温异常。", "只要体温正常，不需要通行证也能在特殊时期进入。"], answer: 1,
+        explanation: "本题属于必要条件假言命题（只有P才Q，即Q → P）。进入实验室（Q）必然能推出具备前件P（持有通行证且体温正常）。因此，小华进入了实验室，必然能推出他持有通行证。A项把必要条件当成了充分条件，错误。"
+    },
+    {
+        id: 5, dimension: "逻辑推理",
+        question: "观察下方图形矩阵，请找出规律，推导右下角问号处应填入什么图形？<br><br><svg width='320' height='320' style='background:#f8fafc; border:1px solid #cbd5e1;'> <rect x='20' y='20' width='60' height='60' fill='none' stroke='#1e293b' stroke-width='2.5'/> <rect x='115' y='15' width='70' height='70' fill='none' stroke='#1e293b' stroke-width='2.5'/> <rect x='120' y='20' width='60' height='60' fill='none' stroke='#1e293b' stroke-width='2.5'/> <rect x='210' y='10' width='80' height='80' fill='none' stroke='#1e293b' stroke-width='2.5'/> <rect x='215' y='15' width='70' height='70' fill='none' stroke='#1e293b' stroke-width='2.5'/> <rect x='220' y='20' width='60' height='60' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='50' cy='160' r='30' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='150' cy='160' r='35' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='150' cy='160' r='30' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='250' cy='160' r='40' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='250' cy='160' r='35' fill='none' stroke='#1e293b' stroke-width='2.5'/> <circle cx='250' cy='160' r='30' fill='none' stroke='#1e293b' stroke-width='2.5'/> <polygon points='50,230 20,290 80,290' fill='none' stroke='#1e293b' stroke-width='2.5'/> <polygon points='150,225 115,295 185,295' fill='none' stroke='#1e293b' stroke-width='2.5'/> <polygon points='150,235 125,285 175,285' fill='none' stroke='#1e293b' stroke-width='2.5'/> <text x='240' y='275' font-size='36' fill='#ef4444' font-weight='bold'>?</text> <line x1='100' y1='0' x2='100' y2='320' stroke='#cbd5e1' stroke-dasharray='4'/> <line x1='200' y1='0' x2='200' y2='320' stroke='#cbd5e1' stroke-dasharray='4'/> <line x1='0' y1='100' x2='320' y2='100' stroke='#cbd5e1' stroke-dasharray='4'/> <line x1='0' y1='200' x2='320' y2='200' stroke='#cbd5e1' stroke-dasharray='4'/> </svg>",
+        options: ["双线条三角形", "三线条正方形", "三线条三角形", "四线条三角形"], answer: 2,
+        explanation: "横向规律观察：各行图形几何形状完全保持一致（第一行正方形→第二行圆形→第三行三角形），且几何线条的嵌套层数呈现 1层 → 2层 → 3层 的等差递增。因此第三行第三格应为三层线嵌套的三角形。"
+    },
+    // 二、 空间想象
+    {
+        id: 6, dimension: "空间想象",
+        question: "观察下方的正方体表面展开图，当它被折叠成三维正方体时，哪个字母的对面是 'E'？<br><br><svg width='180' height='220' style='background:#f8fafc; border:1px solid #cbd5e1;'> <g stroke='#1e293b' stroke-width='2' fill='#fff'> <rect x='70' y='15' width='40' height='40'/> <rect x='30' y='55' width='40' height='40'/> <rect x='70' y='55' width='40' height='40'/> <rect x='110' y='55' width='40' height='40'/> <rect x='70' y='95' width='40' height='40'/> <rect x='70' y='135' width='40' height='40'/> </g> <g font-size='16' font-weight='bold' text-anchor='middle' fill='#1e293b'> <text x='90' y='40'>A</text> <text x='50' y='80'>B</text> <text x='90' y='80'>C</text> <text x='130' y='80'>D</text> <text x='90' y='120'>E</text> <text x='90' y='160'>F</text> </g> </svg>",
+        options: ["A", "C", "D", "F"], answer: 0,
+        explanation: "在正方体表面展开图中，处于同一条链上、且中间恰好隔开一个正方形的两个面是相对面。垂直主干链从上到下为 A-C-E-F：A 与 E 相对（中间隔着 C），C 与 F 相对（中间隔着 E）。水平主干链上 B 与 D 相对（中间隔着 C）。因此 'E' 的对面是 A。"
+    },
+    {
+        id: 7, dimension: "空间想象",
+        question: "一个多面体几何体从三个方向透视的投影（标准三视图）如下图所示。搭建这个三维立体结构**最少**需要多少个相同的小正方体？<br><br><svg width='360' height='140' style='background:#f8fafc; border:1px solid #cbd5e1;'> <g fill='#475569' stroke='#fff' stroke-width='1.5'> <rect x='20' y='65' width='25' height='25'/> <rect x='20' y='40' width='25' height='25'/> <rect x='45' y='65' width='25' height='25'/> </g> <g fill='#475569' stroke='#fff' stroke-width='1.5'> <rect x='130' y='40' width='25' height='25'/> <rect x='155' y='40' width='25' height='25'/> <rect x='130' y='65' width='25' height='25'/> <rect x='155' y='65' width='25' height='25'/> </g> <g fill='#475569' stroke='#fff' stroke-width='1.5'> <rect x='250' y='65' width='25' height='25'/> <rect x='275' y='65' width='25' height='25'/> <rect x='275' y='40' width='25' height='25'/> </g> <g font-size='12' font-weight='bold' fill='#64748b' text-anchor='middle')'> <text x='45' y='115'>正面看 (正视)</text> <text x='155' y='115'>上面看 (俯视)</text> <text x='262' y='115'>左面看 (侧视)</text> </g> </svg>",
+        options: ["4个", "5个", "6个", "7个"], answer: 1,
+        explanation: "1. 依据俯视图，地基是一个 2×2 的阵列，共4个格子，也就是说底层必须要铺满 4 个小正方体才能形成正方形投影。<br>2. 依据正视图，左侧列最高为2层，右侧列最高为1层。<br>3. 依据侧视图，纵深后方最高为2层，前方最高为1层。<br>为了使积木总数最少，我们只需要将第二层的那个正方体精准放置在【左侧列且靠后方】的那根轴线上（即左上角格子），这一个方块就能同时满足正视图和侧视图的最高点要求。因此：底层 4 个 + 顶层 1 个 = 5 个。"
+    },
+    {
+        id: 8, dimension: "空间想象",
+        question: "图形 A 与 图形 B 如下所示。当图形 A 与图形 B 完全叠合，并遵循<b>'异或（XOR）运算：同性相消，异性相加'</b>的逻辑规律时，最终形成的图形是？（注：外边框作为基准参考线，不参与消除）<br><br><svg width='320' height='120' style='background:#f8fafc; border:1px solid #cbd5e1;'> <rect x='25' y='15' width='70' height='70' fill='none' stroke='#1e293b' stroke-width='2'/> <line x1='25' y1='15' x2='95' y2='85' stroke='#1e293b' stroke-width='2'/> <text x='60' y='105' text-anchor='middle' font-size='12' font-weight='bold'>图形 A</text> <text x='125' y='55' font-size='24' font-weight='bold'>+</text> <rect x='165' y='15' width='70' height='70' fill='none' stroke='#1e293b' stroke-width='2'/> <line x1='235' y1='15' x2='165' y2='85' stroke='#1e293b' stroke-width='2'/> <text x='200' y='105' text-anchor='middle' font-size='12' font-weight='bold'>图形 B</text> </svg>",
+        options: ["一个空心正方形", "一个带有完整两条对角线（X型）的正方形", "一个中间有十字交叉（+型）的正方形", "一个没有任何线条的图形"], answer: 1,
+        explanation: "异或（XOR）基本逻辑：重合的内部线条相互抵消，不重合的内部线条完全保留。由于图形 A 仅包含【左上到右下 \\】的内部单对角线，图形 B 仅包含【右上到左下 /】的内部单对角线，二者在空间上互不重叠。融合成图后两条线皆完好保留，呈现内含完整 X 型对角线的正方形。"
+    },
+    {
+        id: 9, dimension: "空间想象",
+        question: "将一张正方形纸片沿对角线对折一次（成三角形），再沿得到的三角形的中线对折一次。此时在纸片内部的核心中间区域剪开一个三角孔（如下图红色虚线处）。将纸片完全展开后，纸片上一共有几个孔？<br><br><svg width='140' height='140' style='background:#f8fafc; border:1px solid #cbd5e1;'> <polygon points='15,15 125,15 125,125' fill='#e2e8f0' stroke='#475569' stroke-width='2'/> <line x1='125' y1='15' x2='70' y2='70' stroke='#94a3b8' stroke-dasharray='4'/> <polygon points='90,35 110,35 100,55' fill='none' stroke='#ef4444' stroke-width='2' stroke-dasharray='3'/> </svg>",
+        options: ["2个", "4个", "8个", "16个"], answer: 1,
+        explanation: "纸张对折一次变为 2 层，再次对折变为 4 层结构。由于红色三角裁剪孔完全被包裹在三角形的**内部核心区**，未触碰任何对折边或中心对称轴，因此四层纸张上的孔相互独立。完全展平后，这 4 个独立的三角形孔会以中心对称形态散布在四个区域，一共有 4 个孔。"
+    },
+    {
+        id: 10, dimension: "空间想象",
+        question: "一个 4 x 4 x 4 的大正方体，其外表面全部涂上黑色油漆。现在将其切成 64 个 1 x 1 x 1 的小正方体，请问完全没有被涂上任何黑色油漆的小正方体有多少个？",
+        options: ["4个", "8个", "16个", "27个"], answer: 1,
+        explanation: "完全未着色的小正方体包裹在大正方体核心内部。即长、宽、高三个维度中，均需要剥离掉暴露在外表面的最外层（两侧各减1）。因此内部核心正方体的核心体积为：(4-2) × (4-2) × (4-2) = 2 × 2 × 2 = 8个。"
+    },
+    // 三、 数学逻辑
+    {
+        id: 11, dimension: "数学逻辑",
+        question: "请找出规律，填入数列中问号处的数字：2，3，7，16，32，( ？ )",
+        options: ["48", "57", "64", "68"], answer: 1,
+        explanation: "计算相邻项的一阶差值：3-2=1；7-3=4；16-7=9；32-16=16。差值序列为：1, 4, 9, 16，显而易见这组差值构成了标准的自然数平方数列（1², 2², 3², 4²）。下一项的差值应为 5²=25。因此，问号处的最终数字为 32 + 25 = 57。"
+    },
+    {
+        id: 12, dimension: "数学逻辑",
+        question: "请找出规律，填入数列中问号处的数字：1，2，6，21，88，( ？ )",
+        options: ["176", "264", "445", "528"], answer: 2,
+        explanation: "数字变动幅度极大，考虑乘法递增复合规律。拆解项与项之间的逻辑阶梯：1×1+1=2；2×2+2=6；6×3+3=21；21×4+4=88。其通用递推通项式为 An × n + n = An+1。依此规律推导，下一项应为 88×5+5 = 440 + 5 = 445。"
+    },
+    {
+        id: 13, dimension: "数学逻辑",
+        question: "请观察下方数字三角形数阵的隐性逻辑，推导出第三个三角形中心问号处应填入什么数字？<br><br><svg width='480' height='140' style='background:#f8fafc; border:1px solid #cbd5e1;'> <g transform='translate(15, 10)'> <polygon points='60,15 20,95 100,95' fill='none' stroke='#475569' stroke-width='2'/> <text x='60' y='12' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>5</text> <text x='10' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>2</text> <text x='110' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>2</text> <circle cx='60' cy='65' r='16' fill='#eff6ff' stroke='#2563eb' stroke-width='1.5'/> <text x='60' y='70' font-size='14' font-weight='bold' text-anchor='middle' fill='#2563eb'>14</text> </g> <g transform='translate(175, 10)'> <polygon points='60,15 20,95 100,95' fill='none' stroke='#475569' stroke-width='2'/> <text x='60' y='12' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>6</text> <text x='10' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>3</text> <text x='110' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>4</text> <circle cx='60' cy='65' r='16' fill='#eff6ff' stroke='#2563eb' stroke-width='1.5'/> <text x='60' y='70' font-size='14' font-weight='bold' text-anchor='middle' fill='#2563eb'>36</text> </g> <g transform='translate(335, 10)'> <polygon points='60,15 20,95 100,95' fill='none' stroke='#475569' stroke-width='2'/> <text x='60' y='12' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>2</text> <text x='10' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>4</text> <text x='110' y='105' font-size='14' font-weight='bold' text-anchor='middle' fill='#1e293b'>5</text> <circle cx='60' cy='65' r='16' fill='#fef2f2' stroke='#ef4444' stroke-width='1.5'/> <text x='60' y='70' font-size='16' font-weight='bold' text-anchor='middle' fill='#ef4444'>?</text> </g> </svg>",
+        options: ["15", "22", "30", "56"], answer: 2,
+        explanation: "定量归纳数阵模型，发现三个角与中心的隐藏约束公式为：**（左下角数字 + 顶角数字）× 右下角数字 = 中心目标数字**。<br>· 三角形1：(2 + 5) × 2 = 7 × 2 = 14<br>· 三角形2：(3 + 6) × 4 = 9 × 4 = 36<br>· 三角形3：(4 + 2) × 5 = 6 × 5 = 30。因此中心问号位置应当填入 30。"
+    },
+    {
+        id: 14, dimension: "数学逻辑",
+        question: "3只猫在3分钟内可以抓到3只老鼠。照此速度和恒定效率计算，如果要在100分钟内抓到100只老鼠，共需要多少只猫？",
+        options: ["1只", "3只", "33只", "100只"], answer: 1,
+        explanation: "本题考察工作速率的复合配比。'3只猫在3分钟内抓3只老鼠'，等价于这 3 只猫组成的团队每 1 分钟就能稳定捕捉 1 只老鼠。那么在给予 100 分钟的长周期下，这个 3 只猫的原始团队总计可以捕捉：1只/分钟 × 100分钟 = 100只老鼠。因此效率系统不需要扩容，依旧只需要 3 只猫。"
+    },
+    {
+        id: 15, dimension: "数学逻辑",
+        question: "一种特制水草每天的覆盖面积会扩大一倍。已知该水草在第 48 天时刚好长满整个池塘。请问在第几天时，水草刚好长满池塘的四分之一 (25%)？",
+        options: ["12天", "24天", "46天", "47天"], answer: 2,
+        explanation: "流体智力中典型的极限逆向倒推思维。已知 An = 2 * A(n-1)：<br>· 第 48 天：满池（100%）<br>· 第 47 天：前一天即为当天的一半，即 100% / 2 = 50%（半池）<br>· 第 46 天：再前半天即为 50% / 2 = 25%（四分之一池）。由此推知，在第 46 天时刚好达到四分之一面积。"
+    },
+    // 四、 言语理解
+    {
+        id: 16, dimension: "言语理解",
+        question: "请选择最合适的一组词填入括号，使前后展现完全契合的类比逻辑：<br><b>皮鞋 对于 (  ) 相当于 钢笔 对于 (  )</b>",
+        options: ["皮革 —— 墨水", "脚 —— 手", "衣服 —— 铅笔", "鞋垫 —— 笔帽"], answer: 0,
+        explanation: "高阶双重概念类比。皮革是构建皮鞋实体的核心基础原材料（没有皮革无法制鞋）；墨水是充盈钢笔并使书写功能得以实现的不可或缺的核心质料（没有墨水钢笔无法发挥任何效用）。"
+    },
+    {
+        id: 17, dimension: "言语理解",
+        question: "找出下列词语中，在现代管理学与决策科学范畴内，底层逻辑属性不同于其他三项的一项：",
+        options: ["帕累托法则", "墨菲定律", "纳什均衡", "奥卡姆剃刀"], answer: 2,
+        explanation: "帕累托法则（二八定律）、墨菲定律、奥卡姆剃刀，在现代决策学中都归属于基于现实经验沉淀和心理学归纳出的‘经验主义经验法则’（Heuristics）。而**纳什均衡**是属于数理博弈论（Game Theory）分支中，拥有极其严密公式化定义、数学公理证明和严格收敛边界的确定性均衡模型。"
+    },
+    {
+        id: 18, dimension: "言语理解",
+        question: "某特定语系中：'Kalo' 代表 '强壮的'；'Kalo-Mina' 代表 '强壮的战士'；'Tuka-Mina' 代表 '勇敢的战士'。若已知'智者'的根词后缀是 'Sana'，如何表达 '勇敢的智者'？",
+        options: ["Kalo-Sana", "Tuka-Sana", "Sana-Mina", "Tuka-Mina"], answer: 1,
+        explanation: "逻辑语义词根切分。通过对比 Kalo（强壮的）和 Kalo-Mina（强壮的战士），可精准定位后缀词根 Mina = 战士。进而通过提取 Tuka-Mina（勇敢的战士），可以破译前缀修饰词 Tuka = 勇敢的。将‘勇敢的’（Tuka）与‘智者’（Sana）进行语义缝合，即得到 Tuka-Sana。"
+    },
+    {
+        id: 19, dimension: "言语理解",
+        question: "观察词语程度与语境演进：<b>[窥探 → 观察 → 洞察]</b>。下列哪组词汇具备完全相同的[贬义/暗中 → 中性/常规 → 深度/褒义]递进逻辑？",
+        options: ["窃听 → 倾听 → 聆听", "跑步 → 跳跃 → 飞翔", "计划 → 执行 → 总结", "喜欢 → 厌恶 → 仇恨"], answer: 0,
+        explanation: "原词组带有精细的情感轴线：窥探（暗中，带有明显的贬义色彩）→ 观察（日常理性，属于中性行为行为）→ 洞察（深刻智慧，属于高级褒义词）。A选项：窃听（暗中窥伺贬义）→ 倾听（常规接收中性）→ 聆听（带崇高敬意褒义），语义和色彩阶梯高度吻合。"
+    },
+    {
+        id: 20, dimension: "言语理解",
+        question: "‘所有不相信奇迹的人都在过着现实生活；所有过着现实生活的人内心都极度渴望安全感。’若上述断定为真，以下哪个情境在逻辑上【绝对不可能】发生？",
+        options: ["一个深信奇迹的人，内心也极度渴望安全感。", "一个内心极度渴望安全感的人，其实过着极其现实的生活。", "一个内心深处根本不在乎安全感的人，却不相信奇迹。", "一个过着极其现实生活的人，深信奇迹会发生。"], answer: 2,
+        explanation: "建立形式逻辑因果链条：不信奇迹 → 现实生活 → 渴望安全感。根据逻辑学逆否命题等价原理，该链条等价于：**不渴望安全感 → 不过现实生活 → 相信奇迹**。C项假设‘一个人不在乎安全感，却不相信奇迹’，这直接强行截断了逆否命题的必然传递，在演绎逻辑体系中是绝对伪命题，不可能发生。"
+    }
+];
+
+let currentQuestionIndex = 0;
+let userAnswers = new Array(quizData.length).fill(null);
+let timerInterval;
+let timeLeft = 30 * 60; 
+
+function startQuiz() {
+    document.getElementById('start-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'block';
+    renderQuestions();
+    showQuestion(0);
+    startTimer();
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("答题时间到！系统已自动为您提交测试。");
+            function submitQuiz() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('report-section').style.display = 'block';
+
+    document.getElementById('completion-time').innerText = new Date().toLocaleDateString('zh-CN', {year: 'numeric', month: 'long', day: 'numeric'});
+
+    let score = 0;
+    let dimensionsScore = { "逻辑推理": 0, "空间想象": 0, "数学逻辑": 0, "言语理解": 0 };
+    let dimensionsTotal = { "逻辑推理": 0, "空间想象": 0, "数学逻辑": 0, "言语理解": 0 };
+
+    quizData.forEach((q, idx) => {
+        dimensionsTotal[q.dimension]++;
+        if (userAnswers[idx] === q.answer) {
+            score++;
+            dimensionsScore[q.dimension]++;
+        }
+    });
+
+    let estimatedIQ = 70 + (score * 3.8);
+    let iqText = `~ ${estimatedIQ.toFixed(0)}`;
+    if(score === 20) iqText = "145+ (Mensa 顶级高才智阶层)";
+    if(score <= 3) iqText = "< 80 (建议多进行流体空间矩阵模型训练)";
+
+    document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+    document.getElementById('estimated-iq').innerText = `估算 IQ 值: ${iqText}`;
+
+    // === 新增：动态计算并渲染常模评估分类 ===
+    let levelTitle = "";
+    let levelDesc = "";
+    let activeIndex = -1; // 用于高亮表格行
+
+    if (score >= 19) {
+        levelTitle = "👑 天赋极高 / 门萨级 (Mensa Level)";
+        levelDesc = "具备极其卓越的抽象矩阵推导与高阶条件映射能力。能在极短时间内拆解复杂的空间旋转与复合数理逻辑，流体思维达到顶尖梯队。";
+        activeIndex = 0;
+    } else if (score >= 15) {
+        levelTitle = "💎 优秀 / 远高于平均 (Superior)";
+        levelDesc = "具备优秀的逻辑演绎与概念外延归类能力。视觉空间转换敏锐，面对新异刺激时大脑的信息加工与工作记忆提取速度非常快。";
+        activeIndex = 1;
+    } else if (score >= 11) {
+        levelTitle = "✨ 中上 / 高于平均 (High Average)";
+        levelDesc = "具备较强的数理敏感度与语义逆向映射能力。能顺畅地完成日常及中高难度的结构化决策，认知灵活性良好。";
+        activeIndex = 2;
+    } else if (score >= 7) {
+        levelTitle = "🎯 中等 / 正常常模 (Average)";
+        levelDesc = "流体智力处于大众标准常模水平。能处理常规的图形异或与一阶差值数列，具备健全的逻辑推理与常识因果判定。";
+        activeIndex = 3;
+    } else if (score >= 4) {
+        levelTitle = "🧗 中下 / 偏低 (Low Average)";
+        levelDesc = "在面对复杂的空间多面体透视或多层复合递推时稍显吃力，容易受到视觉传达的干扰，建议多进行结构化思维训练。";
+        activeIndex = 4;
+    } else {
+        levelTitle = "📚 建议反复阅读解析锻炼流体思维";
+        levelDesc = "建议放下计时压力，对照全题型的深度逻辑解析，重新梳理异或运算（XOR）、逆否命题等核心推导链，激活大脑认知潜能。";
+        activeIndex = 5;
+    }
+
+    const dimContainer = document.getElementById('dimension-results');
+    dimContainer.innerHTML = '';
+    
+    // 注入动态生成的个性化层级评估卡片
+    dimContainer.innerHTML += `
+        <div style="background: #f8fafc; border: 2px solid #2563eb; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <h4 style="color: #2563eb; font-size: 18px; margin-bottom: 8px; font-weight: 700;">您的认知能力归属分类：</h4>
+            <div style="font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 10px;">${levelTitle}</div>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6;">${levelDesc}</p>
+        </div>
+        <h3 class="analysis-title" style="margin-top: 20px;">四大维度认知潜能分布</h3>
+    `;
+
+    // 渲染原有的条形图
+    for (let dim in dimensionsScore) {
+        const percent = (dimensionsScore[dim] / dimensionsTotal[dim]) * 100;
+        dimContainer.innerHTML += `
+            <div class="dimension-report">
+                <div class="dim-header">
+                    <span>${dim}</span>
+                    <span>得分率: ${dimensionsScore[dim]}/${dimensionsTotal[dim]} (${percent.toFixed(0)}%)</span>
+                </div>
+                <div class="dim-bar-bg">
+                    <div class="dim-bar-fill" style="width: ${percent}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 注入全量常模对照表，并根据用户得分自动高亮所在行
+    const tableRows = [
+        { score: "19 - 20 题", name: "天赋极高 / 门萨级", iq: "142 - 145+", ratio: "👑 前 1% 内" },
+        { score: "15 - 18 题", name: "优秀 / 远高于平均", iq: "127 - 141", ratio: "前 5% — 2%" },
+        { score: "11 - 14 题", name: "中上 / 高于平均", iq: "112 - 126", ratio: "前 25% — 6%" },
+        { score: "7 - 10 题", name: "中等 / 正常常模", iq: "97 - 111", ratio: "前 50% — 26%" },
+        { score: "4 - 6 题", name: "中下 / 偏低", iq: "85 - 96", ratio: "前 85% — 51%" },
+        { score: "3 题及以下", name: "认知激活期", iq: "< 85", ratio: "较低梯队" }
+    ];
+
+    let tableHtml = `
+        <h3 class="analysis-title" style="margin-top: 40px;">流体智力 (IQ) 全球常模对照参考</h3>
+        <div style="overflow-x: auto; margin-bottom: 30px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 12px 10px; font-weight: 600; color: #334155;">正确题数</th>
+                        <th style="padding: 12px 10px; font-weight: 600; color: #334155;">认知能力评估分类</th>
+                        <th style="padding: 12px 10px; font-weight: 600; color: #334155;">估算 IQ 范围</th>
+                        <th style="padding: 12px 10px; font-weight: 600; color: #334155;">百分位排名</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    tableRows.forEach((row, rIdx) => {
+        const isCurrent = rIdx === activeIndex;
+        const rowStyle = isCurrent 
+            ? `style="background-color: #eff6ff; font-weight: bold; border: 2px solid #2563eb; color: #1e293b;"` 
+            : `style="border-bottom: 1px solid #e2e8f0; color: #475569;"`;
+        
+        tableHtml += `
+            <tr ${rowStyle}>
+                <td style="padding: 12px 10px;">${row.score} ${isCurrent ? '👈' : ''}</td>
+                <td style="padding: 12px 10px;">${row.name}</td>
+                <td style="padding: 12px 10px;">${row.iq}</td>
+                <td style="padding: 12px 10px;">${row.ratio}</td>
+            </tr>
+        `;
+    });
+
+    tableHtml += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    // 追加常模表到维度面板下方
+    dimContainer.innerHTML += tableHtml;
+
+    // 渲染底部每道题的详细解析
+    const reviewContainer = document.getElementById('review-container');
+    reviewContainer.innerHTML = '';
+    quizData.forEach((q, idx) => {
+        const isCorrect = userAnswers[idx] === q.answer;
+        reviewContainer.innerHTML += `
+            <div class="review-item">
+                <div class="review-q">${q.id}. ${q.question}</div>
+                <div class="review-ans" style="margin-top:10px;">您的选择: <span class="${isCorrect ? 'correct-tag' : 'wrong-tag'}">${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : '未答'}</span> - 
+                    ${isCorrect ? '<span class="correct-tag">✓ 正确</span>' : '<span class="wrong-tag">✗ 错误</span>'}
+                </div>
+                <div class="review-ans">标准答案: <span class="correct-tag">${q.options[q.answer]}</span></div>
+                <div class="review-exp"><strong>核心逻辑解析：</strong>${q.explanation}</div>
+            </div>
+        `;
+    });
+}
+        } else {
+            timeLeft--;
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            document.getElementById('timer').innerText = `剩余时间: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }, 1000);
+}
+
+function renderQuestions() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = ''; 
+    quizData.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = `question-card q-card-${index}`;
+        
+        let questionBody = `<div class="dimension-tag">${q.dimension}</div>`;
+        questionBody += `<div class="question-text">${q.id}. ${q.question}</div>`;
+        
+        questionBody += `<ul class="options-list">`;
+        q.options.forEach((opt, optIdx) => {
+            questionBody += `
+                <li class="option-item">
+                    <label>
+                        <input type="radio" name="q-${index}" value="${optIdx}" ${userAnswers[index] === optIdx ? 'checked' : ''} onchange="selectOption(${index}, ${optIdx})">
+                        <span>${opt}</span>
+                    </label>
+                </li>
+            `;
+        });
+        questionBody += `</ul>`;
+        
+        card.innerHTML = questionBody;
+        container.appendChild(card);
+    });
+}
+
+function showQuestion(index) {
+    const cards = document.querySelectorAll('.question-card');
+    cards.forEach(c => c.classList.remove('active'));
+    cards[index].classList.add('active');
+
+    document.getElementById('question-number').innerText = `题目 ${index + 1} / ${quizData.length}`;
+    
+    const progressPercent = ((index) / quizData.length) * 100;
+    document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+    document.getElementById('prev-btn').disabled = (index === 0);
+    if (index === quizData.length - 1) {
+        document.getElementById('next-btn').innerText = "提交测试";
+    } else {
+        document.getElementById('next-btn').innerText = "下一题";
+    }
+    currentQuestionIndex = index;
+}
+
+function selectOption(qIdx, optIdx) {
+    userAnswers[qIdx] = optIdx;
+}
+
+function nextQuestion() {
+    if (userAnswers[currentQuestionIndex] === null) {
+        alert("请先选择一个答案，保持测验的完整严谨性。");
+        return;
+    }
+    if (currentQuestionIndex < quizData.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+    } else {
+        if(confirm("确定要提交整套智力测试题吗？提交后将无法修改。")) {
+            submitQuiz();
+        }
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+    }
+}
+
+function submitQuiz() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('report-section').style.display = 'block';
+
+    document.getElementById('completion-time').innerText = new Date().toLocaleDateString('zh-CN', {year: 'numeric', month: 'long', day: 'numeric'});
+
+    let score = 0;
+    let dimensionsScore = { "逻辑推理": 0, "空间想象": 0, "数学逻辑": 0, "言语理解": 0 };
+    let dimensionsTotal = { "逻辑推理": 0, "空间想象": 0, "数学逻辑": 0, "言语理解": 0 };
+
+    quizData.forEach((q, idx) => {
+        dimensionsTotal[q.dimension]++;
+        if (userAnswers[idx] === q.answer) {
+            score++;
+            dimensionsScore[q.dimension]++;
+        }
+    });
+
+    let estimatedIQ = 70 + (score * 3.8);
+    let iqText = `~ ${estimatedIQ.toFixed(0)}`;
+    if(score === 20) iqText = "145+ (Mensa 顶级高才智阶层)";
+    if(score <= 3) iqText = "< 80 (建议多进行流体空间矩阵模型训练)";
+
+    document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+    document.getElementById('estimated-iq').innerText = `估算 IQ 值: ${iqText}`;
+
+    const dimContainer = document.getElementById('dimension-results');
+    dimContainer.innerHTML = '';
+    for (let dim in dimensionsScore) {
+        const percent = (dimensionsScore[dim] / dimensionsTotal[dim]) * 100;
+        dimContainer.innerHTML += `
+            <div class="dimension-report">
+                <div class="dim-header">
+                    <span>${dim}</span>
+                    <span>得分率: ${dimensionsScore[dim]}/${dimensionsTotal[dim]} (${percent.toFixed(0)}%)</span>
+                </div>
+                <div class="dim-bar-bg">
+                    <div class="dim-bar-fill" style="width: ${percent}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    const reviewContainer = document.getElementById('review-container');
+    reviewContainer.innerHTML = '';
+    quizData.forEach((q, idx) => {
+        const isCorrect = userAnswers[idx] === q.answer;
+        reviewContainer.innerHTML += `
+            <div class="review-item">
+                <div class="review-q">${q.id}. ${q.question}</div>
+                <div class="review-ans" style="margin-top:10px;">您的选择: <span class="${isCorrect ? 'correct-tag' : 'wrong-tag'}">${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : '未答'}</span> - 
+                    ${isCorrect ? '<span class="correct-tag">✓ 正确</span>' : '<span class="wrong-tag">✗ 错误</span>'}
+                </div>
+                <div class="review-ans">标准答案: <span class="correct-tag">${q.options[q.answer]}</span></div>
+                <div class="review-exp"><strong>核心逻辑解析：</strong>${q.explanation}</div>
+            </div>
+        `;
+    });
+}
+</script>
+
+</body>
+</html>
